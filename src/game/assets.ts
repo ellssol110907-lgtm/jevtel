@@ -7,10 +7,19 @@ import realProcessorPhoto from '../assets/images/real_core_ultra_processor_17957
 import realAiPcPhoto from '../assets/images/real_intel_ai_pc_laptop_1795721328784.jpg';
 import realArcXessPhoto from '../assets/images/real_intel_arc_xess_showcase_1795721329488.jpg';
 import realExpoStationPhoto from '../assets/images/real_intel_expo_station_1795721329704.jpg';
-import heroGatewayArt from '../assets/images/hero_silicon_knight_gateway_1795755336798.jpg';
+import heroGatewayArt from '../assets/images/hero_ink_battle_banner_1795759347447.jpg';
 import pillarNpuArt from '../assets/images/pillar_npu_forge_1795755336368.jpg';
 import pillarBatteryArt from '../assets/images/pillar_battery_lantern_1795755336424.jpg';
 import pillarX86ArcArt from '../assets/images/pillar_x86_arc_bridge_1795755337853.jpg';
+import arcadeMarqueeArt from '../assets/images/arcade_parchment_marquee_1795759348203.jpg';
+import arcadeSideLeftArt from '../assets/images/arcade_side_panel_left_1795757180045.jpg';
+import arcadeSideRightArt from '../assets/images/arcade_side_panel_right_1795757180647.jpg';
+import doodleNotebookArt from '../assets/images/doodle_notebook_corners_1795757181165.jpg';
+import xrayCoreUltraArt from '../assets/images/xray_core_ultra_series3_1795758713524.jpg';
+import xrayBargainTrapArt from '../assets/images/xray_bargain_thermal_trap_1795758712656.jpg';
+import xrayCoreUltra5Art from '../assets/images/xray_core_ultra5_ultrabook_1795760440166.jpg';
+import xrayRtx4060Art from '../assets/images/xray_rtx4060_dual_fan_1795760440887.jpg';
+import xrayCoreUltraX9Art from '../assets/images/xray_core_ultra_x9_pro_1795760440441.jpg';
 
 export type FactionColor = 'Blue' | 'Red' | 'Yellow' | 'Purple' | 'Black';
 
@@ -33,6 +42,18 @@ export const EDITORIAL_ART_URLS = {
   pillarNpu: pillarNpuArt,
   pillarBattery: pillarBatteryArt,
   pillarX86Arc: pillarX86ArcArt,
+  notebookDoodle: doodleNotebookArt,
+  xrayCoreUltra: xrayCoreUltraArt,
+  xrayBargainTrap: xrayBargainTrapArt,
+  xrayCoreUltra5: xrayCoreUltra5Art,
+  xrayRtx4060: xrayRtx4060Art,
+  xrayCoreUltraX9: xrayCoreUltraX9Art,
+};
+
+export const ARCADE_CABINET_ART_URLS = {
+  marquee: arcadeMarqueeArt,
+  leftPanel: arcadeSideLeftArt,
+  rightPanel: arcadeSideRightArt,
 };
 
 const TS_BASE = '/assets/tiny_swords';

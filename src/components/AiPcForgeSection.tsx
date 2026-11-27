@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import {
   BatteryCharging,
   BatteryWarning,
@@ -26,6 +26,7 @@ import {
   resolveCutawayArtKey,
   simulatePcBenchmark,
   type CutawayArtKey,
+  type PartArtKey,
   type PcBuilderConfig,
   type WorkloadScenarioId,
 } from '../game/pcBuilderData';
@@ -114,6 +115,51 @@ const SLOT_TABS: { key: SlotCategoryKey; label: string }[] = [
   { key: 'cooling', label: 'Cooling' },
 ];
 
+function PartArtThumb({
+  artKey,
+  alt,
+  fallbackIcon,
+  sizeClass = 'h-12 w-12',
+  isWarning = false,
+}: {
+  artKey?: PartArtKey;
+  alt: string;
+  fallbackIcon: ReactNode;
+  sizeClass?: string;
+  isWarning?: boolean;
+}) {
+  const [imgFailed, setImgFailed] = useState(false);
+  const src = artKey ? EDITORIAL_ART_URLS[artKey] : undefined;
+
+  if (!src || imgFailed) {
+    return (
+      <div
+        className={`flex ${sizeClass} shrink-0 items-center justify-center rounded-lg border ${
+          isWarning
+            ? 'border-[#FECACA] bg-[#FEF2F2] text-[#DC2626]'
+            : 'border-[#E5E7EB] bg-[#FAF8F5] text-[#4B5563]'
+        }`}
+      >
+        {fallbackIcon}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={`${sizeClass} shrink-0 overflow-hidden rounded-lg border border-[#111827]/15 bg-[#FAF8F5]`}
+    >
+      <img
+        src={src}
+        alt={alt}
+        referrerPolicy="no-referrer"
+        onError={() => setImgFailed(true)}
+        className="h-full w-full object-cover"
+      />
+    </div>
+  );
+}
+
 export function AiPcForgeSection({
   config,
   onChangeConfig,
@@ -188,6 +234,52 @@ export function AiPcForgeSection({
   ];
 
   const pinStroke = isThrottled ? '#DC2626' : '#0068B5';
+
+  // Active secondary spotlight artwork reflecting the active customization tab
+  const activeTabSpotlight =
+    activeSlot === 'graphics'
+      ? {
+          slotTitle: 'Active Graphics',
+          label: selectedGpu.label,
+          tierHint: selectedGpu.tierHint,
+          artKey: selectedGpu.artKey,
+          icon: <MonitorPlay className="h-5 w-5" />,
+        }
+      : activeSlot === 'memory'
+        ? {
+            slotTitle: 'Active Memory',
+            label: selectedMem.label,
+            tierHint: selectedMem.tierHint,
+            artKey: selectedMem.artKey,
+            icon: <MemoryStick className="h-5 w-5" />,
+          }
+        : activeSlot === 'storage'
+          ? {
+              slotTitle: 'Active Storage',
+              label: selectedSsd.label,
+              tierHint: selectedSsd.tierHint,
+              artKey: selectedSsd.artKey,
+              icon: <HardDrive className="h-5 w-5" />,
+            }
+          : activeSlot === 'cooling'
+            ? {
+                slotTitle: 'Active Cooling',
+                label: selectedCool.label,
+                tierHint: selectedCool.tierHint,
+                artKey: selectedCool.artKey,
+                icon: <Wind className="h-5 w-5" />,
+              }
+            : {
+                slotTitle: selectedGpu.artKey ? 'Active Graphics' : 'Active Cooling',
+                label: selectedGpu.artKey ? selectedGpu.label : selectedCool.label,
+                tierHint: selectedGpu.artKey ? selectedGpu.tierHint : selectedCool.tierHint,
+                artKey: selectedGpu.artKey ?? selectedCool.artKey,
+                icon: selectedGpu.artKey ? (
+                  <MonitorPlay className="h-5 w-5" />
+                ) : (
+                  <Wind className="h-5 w-5" />
+                ),
+              };
 
   return (
     <section
@@ -332,7 +424,7 @@ export function AiPcForgeSection({
                 })}
               </div>
 
-              {/* Active Slot Choices */}
+              {/* Active Slot Choices with Custom Pen-and-Ink Artwork */}
               <div className="mt-4 space-y-2.5">
                 {activeSlot === 'processor' &&
                   PROCESSOR_OPTIONS.map((opt) => {
@@ -342,7 +434,7 @@ export function AiPcForgeSection({
                         key={opt.id}
                         type="button"
                         onClick={() => onChangeConfig({ ...config, processor: opt.id })}
-                        className={`w-full rounded-xl border px-3.5 py-2.5 text-left transition-colors ${
+                        className={`flex w-full items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition-colors ${
                           active
                             ? opt.isBargain
                               ? 'border-[#DC2626] bg-[#FEF2F2] ring-1 ring-[#DC2626]/25'
@@ -350,21 +442,31 @@ export function AiPcForgeSection({
                             : 'border-[#E5E7EB] bg-[#FAF8F5] hover:border-[#9CA3AF]'
                         }`}
                       >
-                        <div className="flex items-baseline justify-between gap-2">
-                          <span className="text-xs font-bold text-[#111827]">{opt.label}</span>
-                          <span
-                            className={`font-mono-tabular text-[10px] font-bold shrink-0 ${
-                              active
-                                ? opt.isBargain
-                                  ? 'text-[#DC2626]'
-                                  : 'text-[#0068B5]'
-                                : 'text-[#6B7280]'
-                            }`}
-                          >
-                            {opt.tierHint}
-                          </span>
+                        <PartArtThumb
+                          artKey={opt.artKey}
+                          alt={`Pen-and-ink illustration for ${opt.label}`}
+                          fallbackIcon={<Cpu className="h-5 w-5" />}
+                          isWarning={opt.isBargain}
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-baseline justify-between gap-2">
+                            <span className="truncate text-xs font-bold text-[#111827]">
+                              {opt.label}
+                            </span>
+                            <span
+                              className={`font-mono-tabular text-[10px] font-bold shrink-0 ${
+                                active
+                                  ? opt.isBargain
+                                    ? 'text-[#DC2626]'
+                                    : 'text-[#0068B5]'
+                                  : 'text-[#6B7280]'
+                              }`}
+                            >
+                              {opt.tierHint}
+                            </span>
+                          </div>
+                          <div className="mt-0.5 text-[11px] text-[#4B5563]">{opt.shortTag}</div>
                         </div>
-                        <div className="mt-0.5 text-[11px] text-[#4B5563]">{opt.shortTag}</div>
                       </button>
                     );
                   })}
@@ -377,7 +479,7 @@ export function AiPcForgeSection({
                         key={opt.id}
                         type="button"
                         onClick={() => onChangeConfig({ ...config, graphics: opt.id })}
-                        className={`w-full rounded-xl border px-3.5 py-3 text-left transition-colors ${
+                        className={`flex w-full items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition-colors ${
                           active
                             ? opt.isBargain
                               ? 'border-[#D97706] bg-[#FFFBEB] ring-1 ring-[#D97706]/25'
@@ -385,21 +487,31 @@ export function AiPcForgeSection({
                             : 'border-[#E5E7EB] bg-[#FAF8F5] hover:border-[#9CA3AF]'
                         }`}
                       >
-                        <div className="flex items-baseline justify-between gap-2">
-                          <span className="text-xs font-bold text-[#111827]">{opt.label}</span>
-                          <span
-                            className={`font-mono-tabular text-[10px] font-bold shrink-0 ${
-                              active
-                                ? opt.isBargain
-                                  ? 'text-[#B45309]'
-                                  : 'text-[#0068B5]'
-                                : 'text-[#6B7280]'
-                            }`}
-                          >
-                            {opt.tierHint}
-                          </span>
+                        <PartArtThumb
+                          artKey={opt.artKey}
+                          alt={`Pen-and-ink illustration for ${opt.label}`}
+                          fallbackIcon={<MonitorPlay className="h-5 w-5" />}
+                          isWarning={opt.isBargain}
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-baseline justify-between gap-2">
+                            <span className="truncate text-xs font-bold text-[#111827]">
+                              {opt.label}
+                            </span>
+                            <span
+                              className={`font-mono-tabular text-[10px] font-bold shrink-0 ${
+                                active
+                                  ? opt.isBargain
+                                    ? 'text-[#B45309]'
+                                    : 'text-[#0068B5]'
+                                  : 'text-[#6B7280]'
+                              }`}
+                            >
+                              {opt.tierHint}
+                            </span>
+                          </div>
+                          <div className="mt-0.5 text-[11px] text-[#4B5563]">{opt.shortTag}</div>
                         </div>
-                        <div className="mt-0.5 text-[11px] text-[#4B5563]">{opt.shortTag}</div>
                       </button>
                     );
                   })}
@@ -412,7 +524,7 @@ export function AiPcForgeSection({
                         key={opt.id}
                         type="button"
                         onClick={() => onChangeConfig({ ...config, memory: opt.id })}
-                        className={`w-full rounded-xl border px-3.5 py-3 text-left transition-colors ${
+                        className={`flex w-full items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition-colors ${
                           active
                             ? opt.isBargain
                               ? 'border-[#D97706] bg-[#FFFBEB] ring-1 ring-[#D97706]/25'
@@ -420,21 +532,31 @@ export function AiPcForgeSection({
                             : 'border-[#E5E7EB] bg-[#FAF8F5] hover:border-[#9CA3AF]'
                         }`}
                       >
-                        <div className="flex items-baseline justify-between gap-2">
-                          <span className="text-xs font-bold text-[#111827]">{opt.label}</span>
-                          <span
-                            className={`font-mono-tabular text-[10px] font-bold shrink-0 ${
-                              active
-                                ? opt.isBargain
-                                  ? 'text-[#B45309]'
-                                  : 'text-[#059669]'
-                                : 'text-[#6B7280]'
-                            }`}
-                          >
-                            {opt.tierHint}
-                          </span>
+                        <PartArtThumb
+                          artKey={opt.artKey}
+                          alt={`Pen-and-ink illustration for ${opt.label}`}
+                          fallbackIcon={<MemoryStick className="h-5 w-5" />}
+                          isWarning={opt.isBargain}
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-baseline justify-between gap-2">
+                            <span className="truncate text-xs font-bold text-[#111827]">
+                              {opt.label}
+                            </span>
+                            <span
+                              className={`font-mono-tabular text-[10px] font-bold shrink-0 ${
+                                active
+                                  ? opt.isBargain
+                                    ? 'text-[#B45309]'
+                                    : 'text-[#059669]'
+                                  : 'text-[#6B7280]'
+                              }`}
+                            >
+                              {opt.tierHint}
+                            </span>
+                          </div>
+                          <div className="mt-0.5 text-[11px] text-[#4B5563]">{opt.shortTag}</div>
                         </div>
-                        <div className="mt-0.5 text-[11px] text-[#4B5563]">{opt.shortTag}</div>
                       </button>
                     );
                   })}
@@ -447,23 +569,32 @@ export function AiPcForgeSection({
                         key={opt.id}
                         type="button"
                         onClick={() => onChangeConfig({ ...config, storage: opt.id })}
-                        className={`w-full rounded-xl border px-3.5 py-3 text-left transition-colors ${
+                        className={`flex w-full items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition-colors ${
                           active
                             ? 'border-[#0068B5] bg-[#EFF6FF] ring-1 ring-[#0068B5]/25'
                             : 'border-[#E5E7EB] bg-[#FAF8F5] hover:border-[#9CA3AF]'
                         }`}
                       >
-                        <div className="flex items-baseline justify-between gap-2">
-                          <span className="text-xs font-bold text-[#111827]">{opt.label}</span>
-                          <span
-                            className={`font-mono-tabular text-[10px] font-bold shrink-0 ${
-                              active ? 'text-[#0068B5]' : 'text-[#6B7280]'
-                            }`}
-                          >
-                            {opt.tierHint}
-                          </span>
+                        <PartArtThumb
+                          artKey={opt.artKey}
+                          alt={`Pen-and-ink illustration for ${opt.label}`}
+                          fallbackIcon={<HardDrive className="h-5 w-5" />}
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-baseline justify-between gap-2">
+                            <span className="truncate text-xs font-bold text-[#111827]">
+                              {opt.label}
+                            </span>
+                            <span
+                              className={`font-mono-tabular text-[10px] font-bold shrink-0 ${
+                                active ? 'text-[#0068B5]' : 'text-[#6B7280]'
+                              }`}
+                            >
+                              {opt.tierHint}
+                            </span>
+                          </div>
+                          <div className="mt-0.5 text-[11px] text-[#4B5563]">{opt.shortTag}</div>
                         </div>
-                        <div className="mt-0.5 text-[11px] text-[#4B5563]">{opt.shortTag}</div>
                       </button>
                     );
                   })}
@@ -476,7 +607,7 @@ export function AiPcForgeSection({
                         key={opt.id}
                         type="button"
                         onClick={() => onChangeConfig({ ...config, cooling: opt.id })}
-                        className={`w-full rounded-xl border px-3.5 py-3 text-left transition-colors ${
+                        className={`flex w-full items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition-colors ${
                           active
                             ? opt.isBargain
                               ? 'border-[#D97706] bg-[#FFFBEB] ring-1 ring-[#D97706]/25'
@@ -484,21 +615,31 @@ export function AiPcForgeSection({
                             : 'border-[#E5E7EB] bg-[#FAF8F5] hover:border-[#9CA3AF]'
                         }`}
                       >
-                        <div className="flex items-baseline justify-between gap-2">
-                          <span className="text-xs font-bold text-[#111827]">{opt.label}</span>
-                          <span
-                            className={`font-mono-tabular text-[10px] font-bold shrink-0 ${
-                              active
-                                ? opt.isBargain
-                                  ? 'text-[#B45309]'
-                                  : 'text-[#059669]'
-                                : 'text-[#6B7280]'
-                            }`}
-                          >
-                            {opt.tierHint}
-                          </span>
+                        <PartArtThumb
+                          artKey={opt.artKey}
+                          alt={`Pen-and-ink illustration for ${opt.label}`}
+                          fallbackIcon={<Wind className="h-5 w-5" />}
+                          isWarning={opt.isBargain}
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-baseline justify-between gap-2">
+                            <span className="truncate text-xs font-bold text-[#111827]">
+                              {opt.label}
+                            </span>
+                            <span
+                              className={`font-mono-tabular text-[10px] font-bold shrink-0 ${
+                                active
+                                  ? opt.isBargain
+                                    ? 'text-[#B45309]'
+                                    : 'text-[#059669]'
+                                  : 'text-[#6B7280]'
+                              }`}
+                            >
+                              {opt.tierHint}
+                            </span>
+                          </div>
+                          <div className="mt-0.5 text-[11px] text-[#4B5563]">{opt.shortTag}</div>
                         </div>
-                        <div className="mt-0.5 text-[11px] text-[#4B5563]">{opt.shortTag}</div>
                       </button>
                     );
                   })}
@@ -802,8 +943,54 @@ export function AiPcForgeSection({
               </div>
             </div>
 
+            {/* Cutaway Spotlight Badges: Active Processor Crest + Active Customization Art */}
+            <div className="mt-3.5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="flex items-center gap-3 rounded-xl border border-[#E5E7EB] bg-[#FAF8F5] px-3 py-2">
+                <PartArtThumb
+                  artKey={selectedCpu.artKey}
+                  alt={`Pen-and-ink crest for ${selectedCpu.label}`}
+                  fallbackIcon={<Cpu className="h-5 w-5" />}
+                  sizeClass="h-12 w-12"
+                  isWarning={selectedCpu.isBargain}
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5 text-[10px] font-semibold text-[#6B7280]">
+                    <span>Processor Crest</span>
+                    <span aria-hidden="true">·</span>
+                    <span className="font-mono-tabular font-bold text-[#0068B5]">
+                      {selectedCpu.tierHint}
+                    </span>
+                  </div>
+                  <div className="truncate text-xs font-bold text-[#111827]">
+                    {selectedCpu.label}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 rounded-xl border border-[#E5E7EB] bg-[#FAF8F5] px-3 py-2">
+                <PartArtThumb
+                  artKey={activeTabSpotlight.artKey}
+                  alt={`Pen-and-ink illustration for ${activeTabSpotlight.label}`}
+                  fallbackIcon={activeTabSpotlight.icon}
+                  sizeClass="h-12 w-12"
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5 text-[10px] font-semibold text-[#6B7280]">
+                    <span>{activeTabSpotlight.slotTitle}</span>
+                    <span aria-hidden="true">·</span>
+                    <span className="font-mono-tabular font-bold text-[#059669]">
+                      {activeTabSpotlight.tierHint}
+                    </span>
+                  </div>
+                  <div className="truncate text-xs font-bold text-[#111827]">
+                    {activeTabSpotlight.label}
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Clean Telemetry Bar Directly Below Cutaway */}
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-4 border-t border-[#E5E7EB] pt-3.5 text-xs">
+            <div className="mt-3.5 flex flex-wrap items-center justify-between gap-4 border-t border-[#E5E7EB] pt-3.5 text-xs">
               <div className="flex items-center gap-2">
                 <Fan
                   className={`h-4 w-4 shrink-0 ${

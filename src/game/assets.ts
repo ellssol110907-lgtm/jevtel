@@ -20,6 +20,14 @@ import xrayBargainTrapArt from '../assets/images/xray_bargain_thermal_trap_17957
 import xrayCoreUltra5Art from '../assets/images/xray_core_ultra5_ultrabook_1795760440166.jpg';
 import xrayRtx4060Art from '../assets/images/xray_rtx4060_dual_fan_1795760440887.jpg';
 import xrayCoreUltraX9Art from '../assets/images/xray_core_ultra_x9_pro_1795760440441.jpg';
+import procCoreUltra5Art from '../assets/images/proc_core_ultra5_1795763756648.jpg';
+import procCoreUltra7Art from '../assets/images/proc_core_ultra7_1795763756412.jpg';
+import procCoreUltraX9Art from '../assets/images/proc_core_ultra_x9_1795763758963.jpg';
+import slotGpuHeraldArt from '../assets/images/slot_gpu_herald_1795763757139.jpg';
+import slotMemoryScrollsArt from '../assets/images/slot_memory_scrolls_1795763759633.jpg';
+import slotStorageVaultArt from '../assets/images/slot_storage_vault_1795763760468.jpg';
+import slotCoolingVaporArt from '../assets/images/slot_cooling_vapor_1795763759423.jpg';
+import slotCoolingAirflowArt from '../assets/images/slot_cooling_airflow_1795763761105.jpg';
 
 export type FactionColor = 'Blue' | 'Red' | 'Yellow' | 'Purple' | 'Black';
 
@@ -48,6 +56,14 @@ export const EDITORIAL_ART_URLS = {
   xrayCoreUltra5: xrayCoreUltra5Art,
   xrayRtx4060: xrayRtx4060Art,
   xrayCoreUltraX9: xrayCoreUltraX9Art,
+  procCoreUltra5: procCoreUltra5Art,
+  procCoreUltra7: procCoreUltra7Art,
+  procCoreUltraX9: procCoreUltraX9Art,
+  slotGpuHerald: slotGpuHeraldArt,
+  slotMemoryScrolls: slotMemoryScrollsArt,
+  slotStorageVault: slotStorageVaultArt,
+  slotCoolingVapor: slotCoolingVaporArt,
+  slotCoolingAirflow: slotCoolingAirflowArt,
 };
 
 export const ARCADE_CABINET_ART_URLS = {

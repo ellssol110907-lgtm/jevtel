@@ -29,12 +29,23 @@ export interface PcBuilderConfig {
   cooling: CoolingSlotId;
 }
 
+export type PartArtKey =
+  | 'procCoreUltra5'
+  | 'procCoreUltra7'
+  | 'procCoreUltraX9'
+  | 'slotGpuHerald'
+  | 'slotMemoryScrolls'
+  | 'slotStorageVault'
+  | 'slotCoolingVapor'
+  | 'slotCoolingAirflow';
+
 export interface SlotOption<T extends string> {
   id: T;
   label: string;
   shortTag: string;
   tierHint: string;
   isBargain?: boolean;
+  artKey?: PartArtKey;
 }
 
 export const PROCESSOR_OPTIONS: SlotOption<ProcessorSlotId>[] = [
@@ -50,18 +61,21 @@ export const PROCESSOR_OPTIONS: SlotOption<ProcessorSlotId>[] = [
     label: 'Intel Core Ultra 5 225H',
     shortTag: 'Everyday AI PC · Light study & office speed',
     tierHint: 'Everyday',
+    artKey: 'procCoreUltra5',
   },
   {
     id: 'ultra7_355',
     label: 'Intel Core Ultra 7 355 (Series 3)',
     shortTag: 'All-rounder · Built-in AI + all-day battery',
     tierHint: 'Sweet Spot',
+    artKey: 'procCoreUltra7',
   },
   {
     id: 'ultra_x9_388h',
     label: 'Intel Core Ultra X9 388H (Series 3)',
     shortTag: 'Flagship power · Heavy creative & coding speed',
     tierHint: 'Flagship',
+    artKey: 'procCoreUltraX9',
   },
 ];
 
@@ -78,12 +92,14 @@ export const GRAPHICS_OPTIONS: SlotOption<GraphicsSlotId>[] = [
     label: 'Intel Arc B390 Graphics (with XeSS)',
     shortTag: 'Thin-laptop power · Crisp 1080p gaming & video',
     tierHint: 'Balanced',
+    artKey: 'slotGpuHerald',
   },
   {
     id: 'rtx_4060',
     label: 'NVIDIA GeForce RTX 4060 Laptop GPU',
     shortTag: 'Dedicated high-FPS gaming & 3D rendering chip',
     tierHint: 'Max 3D',
+    artKey: 'slotGpuHerald',
   },
 ];
 
@@ -100,12 +116,14 @@ export const MEMORY_OPTIONS: SlotOption<MemorySlotId>[] = [
     label: '16GB Dual-Channel Memory',
     shortTag: 'Smooth everyday study, coding & photo work',
     tierHint: 'Standard',
+    artKey: 'slotMemoryScrolls',
   },
   {
     id: 'ram_32gb',
     label: '32GB High-Speed Memory',
     shortTag: 'Effortless containers, 4K edits & AI models',
     tierHint: 'Pro',
+    artKey: 'slotMemoryScrolls',
   },
 ];
 
@@ -121,12 +139,14 @@ export const STORAGE_OPTIONS: SlotOption<StorageSlotId>[] = [
     label: '1TB Fast NVMe SSD',
     shortTag: 'Fast file reads + room for projects & games',
     tierHint: 'Balanced',
+    artKey: 'slotStorageVault',
   },
   {
     id: 'ssd_2tb',
     label: '2TB Pro NVMe SSD',
     shortTag: 'Instant 4K scratch cache & full media library',
     tierHint: 'Creator',
+    artKey: 'slotStorageVault',
   },
 ];
 
@@ -143,12 +163,14 @@ export const COOLING_OPTIONS: SlotOption<CoolingSlotId>[] = [
     label: 'Dual-Fan Vapor Chamber',
     shortTag: 'Quiet, steady heat spread without loud fans',
     tierHint: 'Quiet Cool',
+    artKey: 'slotCoolingVapor',
   },
   {
     id: 'pro_airflow',
     label: 'Pro Max-Airflow Chassis',
     shortTag: 'Twin exhaust ducts built for sustained 3D & renders',
     tierHint: 'Max Cool',
+    artKey: 'slotCoolingAirflow',
   },
 ];
 

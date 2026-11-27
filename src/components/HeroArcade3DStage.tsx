@@ -24,7 +24,7 @@ const HOME_CAM_POS = new THREE.Vector3(2.45, 2.55, 4.35);
 const HOME_LOOK_AT = new THREE.Vector3(0, 1.48, 0.05);
 const HOME_FOV = 38;
 const DIVE_FOV = 54;
-const LAUNCH_DURATION_SEC = 0.68;
+const LAUNCH_DURATION_SEC = 1.5;
 
 function detectSoftwareGl(): boolean {
   if (typeof document === 'undefined') return false;
@@ -314,19 +314,20 @@ function drawCrtScreenFrame(
     ctx.fillRect(0, y, w, 1.5);
   }
 
-  // Beat 2 CRT Power-On Degauss Flicker & Phosphor Line Burst during launch
+  // Beat 2 CRT Power-On Degauss Flicker & Phosphor Line Burst during launch (1.5s pacing)
   if (launchProgress > 0) {
-    if (launchProgress < 0.22) {
-      // Classic horizontal CRT collapse/expand flash
-      const bandH = Math.max(8, h * (launchProgress / 0.22));
+    if (launchProgress < 0.36) {
+      // Classic horizontal CRT collapse/expand warm-up flash
+      const bandT = launchProgress / 0.36;
+      const bandH = Math.max(10, h * Math.pow(bandT, 1.35));
       ctx.fillStyle = '#020617';
       ctx.fillRect(0, 0, w, (h - bandH) * 0.5);
       ctx.fillRect(0, (h + bandH) * 0.5, w, (h - bandH) * 0.5);
-      ctx.fillStyle = `rgba(224, 242, 254, ${0.85 - launchProgress * 2.4})`;
+      ctx.fillStyle = `rgba(224, 242, 254, ${Math.max(0.25, 0.9 - bandT * 0.55)})`;
       ctx.fillRect(0, (h - bandH) * 0.5, w, bandH);
     } else {
-      // Bright phosphor bloom ramping as camera dives into screen
-      const flashAlpha = Math.min(0.95, Math.max(0, (launchProgress - 0.35) * 1.45));
+      // Gentle phosphor bloom ramping smoothly as camera dives into screen
+      const flashAlpha = Math.min(0.92, Math.max(0, (launchProgress - 0.52) * 1.65));
       ctx.fillStyle = `rgba(250, 248, 245, ${flashAlpha})`;
       ctx.fillRect(0, 0, w, h);
     }
@@ -991,37 +992,37 @@ export function HeroArcade3DStage({
           launchElapsed += dt;
           const progress = Math.min(1, launchElapsed / LAUNCH_DURATION_SEC);
 
-          // Spring-back joystick
-          const k = 120;
-          const damp = 11;
+          // Spring-back joystick (unhurried tactile motion)
+          const k = 64;
+          const damp = 8.5;
           joyVelX += (-k * joyTiltX - damp * joyVelX) * dt;
           joyVelZ += (-k * joyTiltZ - damp * joyVelZ) * dt;
           joyTiltX += joyVelX * dt;
           joyTiltZ += joyVelZ * dt;
 
           // Button rebound
-          btnPressCobalt = Math.max(0, btnPressCobalt - dt * 3.8);
-          btnPressAmber = Math.max(0, btnPressAmber - dt * 3.4);
-          btnPressEmerald = Math.max(0, btnPressEmerald - dt * 4.2);
+          btnPressCobalt = Math.max(0, btnPressCobalt - dt * 1.9);
+          btnPressAmber = Math.max(0, btnPressAmber - dt * 1.7);
+          btnPressEmerald = Math.max(0, btnPressEmerald - dt * 2.1);
 
-          // Beat 3 Camera Dive into CRT center starting smoothly around t = 0.22
-          if (progress > 0.22) {
+          // Beat 3 Camera Dive into CRT center starting smoothly around t = 0.34 (~0.51s into 1.5s)
+          if (progress > 0.34) {
             crtScreenMesh.updateWorldMatrix(true, false);
             crtScreenMesh.getWorldPosition(_screenWorldPos);
             _screenForward.setFromMatrixColumn(crtScreenMesh.matrixWorld, 2).normalize();
 
-            _camTargetPos.copy(_screenWorldPos).addScaledVector(_screenForward, 0.32);
+            _camTargetPos.copy(_screenWorldPos).addScaledVector(_screenForward, 0.34);
             _lookTarget.copy(_screenWorldPos);
 
-            camera.position.x = THREE.MathUtils.damp(camera.position.x, _camTargetPos.x, 7.5, dt);
-            camera.position.y = THREE.MathUtils.damp(camera.position.y, _camTargetPos.y, 7.5, dt);
-            camera.position.z = THREE.MathUtils.damp(camera.position.z, _camTargetPos.z, 7.5, dt);
-            controls.target.x = THREE.MathUtils.damp(controls.target.x, _lookTarget.x, 9, dt);
-            controls.target.y = THREE.MathUtils.damp(controls.target.y, _lookTarget.y, 9, dt);
-            controls.target.z = THREE.MathUtils.damp(controls.target.z, _lookTarget.z, 9, dt);
+            camera.position.x = THREE.MathUtils.damp(camera.position.x, _camTargetPos.x, 3.4, dt);
+            camera.position.y = THREE.MathUtils.damp(camera.position.y, _camTargetPos.y, 3.4, dt);
+            camera.position.z = THREE.MathUtils.damp(camera.position.z, _camTargetPos.z, 3.4, dt);
+            controls.target.x = THREE.MathUtils.damp(controls.target.x, _lookTarget.x, 4.2, dt);
+            controls.target.y = THREE.MathUtils.damp(controls.target.y, _lookTarget.y, 4.2, dt);
+            controls.target.z = THREE.MathUtils.damp(controls.target.z, _lookTarget.z, 4.2, dt);
             camera.lookAt(controls.target);
 
-            camera.fov = THREE.MathUtils.damp(camera.fov, DIVE_FOV, 6.5, dt);
+            camera.fov = THREE.MathUtils.damp(camera.fov, DIVE_FOV, 3.0, dt);
             camera.updateProjectionMatrix();
           }
 
